@@ -6,16 +6,12 @@ const TYPESAFE_URL = "https://api.typesafe.ai/v1/systemone";
 const INPUT_USD_PER_MTOK = 0.042;
 const USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36 should-ai-kill-us-all/1.0";
 
-const googleSearch = (q) => `https://news.google.com/rss/search?q=${encodeURIComponent(q)}&hl=en-US&gl=US&ceid=US:en`;
-const googleTopic = (t) => `https://news.google.com/rss/headlines/section/topic/${t}?hl=en-US&gl=US&ceid=US:en`;
-
 const CATEGORIES = [
   {
     id: "florida", label: "Florida Man", quota: 3,
     feeds: [
-      { id: "google-florida", label: "Google News “Florida man”", url: googleSearch('"Florida man" when:2d') },
-      { id: "reddit-floridaman", label: "r/FloridaMan", url: "https://www.reddit.com/r/FloridaMan/top/.rss?t=week" },
       { id: "bing-florida", label: "Bing News “Florida man”", url: "https://www.bing.com/news/search?q=%22Florida+man%22&format=rss" },
+      { id: "reddit-floridaman", label: "r/FloridaMan", url: "https://www.reddit.com/r/FloridaMan/top/.rss?t=week" },
     ],
   },
   {
@@ -28,7 +24,6 @@ const CATEGORIES = [
   {
     id: "politics", label: "Politics", quota: 3,
     feeds: [
-      { id: "google-politics", label: "Google News Politics", url: googleTopic("POLITICS") },
       { id: "politico", label: "Politico", url: "https://rss.politico.com/politics-news.xml" },
       { id: "npr-politics", label: "NPR Politics", url: "https://feeds.npr.org/1014/rss.xml" },
     ],
@@ -36,14 +31,13 @@ const CATEGORIES = [
   {
     id: "world", label: "World", quota: 3,
     feeds: [
-      { id: "google-world", label: "Google News World", url: googleTopic("WORLD") },
       { id: "bbc-world", label: "BBC World", url: "https://feeds.bbci.co.uk/news/world/rss.xml" },
     ],
   },
 ];
 
 const AI_FEEDS = [
-  { id: "google-ai", label: "Google News “AI”", url: googleSearch('AI OR "artificial intelligence"') },
+  { id: "bing-ai", label: "Bing News “artificial intelligence”", url: "https://www.bing.com/news/search?q=artificial+intelligence&format=rss" },
   { id: "techcrunch-ai", label: "TechCrunch AI", url: "https://techcrunch.com/category/artificial-intelligence/feed/" },
   { id: "verge-ai", label: "The Verge AI", url: "https://www.theverge.com/rss/ai-artificial-intelligence/index.xml" },
 ];
