@@ -1,21 +1,51 @@
 const TTL_SECONDS = 600;
 const EXHIBIT_COUNT = 12;
 const AI_COUNT = 10;
+const FEED_TIMEOUT_MS = 8000;
 const TYPESAFE_URL = "https://api.typesafe.ai/v1/systemone";
 const INPUT_USD_PER_MTOK = 0.042;
-const USER_AGENT = "Mozilla/5.0 (compatible; should-ai-kill-us-all/1.0; +https://should-ai-kill-us-all.pages.dev)";
+const USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36 should-ai-kill-us-all/1.0";
 
 const googleSearch = (q) => `https://news.google.com/rss/search?q=${encodeURIComponent(q)}&hl=en-US&gl=US&ceid=US:en`;
 const googleTopic = (t) => `https://news.google.com/rss/headlines/section/topic/${t}?hl=en-US&gl=US&ceid=US:en`;
 
-const EXHIBIT_FEEDS = [
-  { id: "florida", label: "Florida Man", url: googleSearch('"Florida man" when:2d'), quota: 3 },
-  { id: "nottheonion", label: "r/nottheonion", url: "https://www.reddit.com/r/nottheonion/top/.rss?t=day", quota: 3 },
-  { id: "odd", label: "UPI Odd News", url: "https://rss.upi.com/news/odd_news.rss", quota: 2 },
-  { id: "politics", label: "Politics", url: googleTopic("POLITICS"), quota: 2 },
-  { id: "world", label: "World", url: googleTopic("WORLD"), quota: 2 },
+const CATEGORIES = [
+  {
+    id: "florida", label: "Florida Man", quota: 3,
+    feeds: [
+      { id: "google-florida", label: "Google News “Florida man”", url: googleSearch('"Florida man" when:2d') },
+      { id: "reddit-floridaman", label: "r/FloridaMan", url: "https://www.reddit.com/r/FloridaMan/top/.rss?t=week" },
+    ],
+  },
+  {
+    id: "odd", label: "Odd News", quota: 3,
+    feeds: [
+      { id: "reddit-nottheonion", label: "r/nottheonion", url: "https://www.reddit.com/r/nottheonion/top/.rss?t=day" },
+      { id: "upi-odd", label: "UPI Odd News", url: "https://rss.upi.com/news/odd_news.rss" },
+    ],
+  },
+  {
+    id: "politics", label: "Politics", quota: 3,
+    feeds: [
+      { id: "google-politics", label: "Google News Politics", url: googleTopic("POLITICS") },
+      { id: "politico", label: "Politico", url: "https://rss.politico.com/politics-news.xml" },
+      { id: "npr-politics", label: "NPR Politics", url: "https://feeds.npr.org/1014/rss.xml" },
+    ],
+  },
+  {
+    id: "world", label: "World", quota: 3,
+    feeds: [
+      { id: "google-world", label: "Google News World", url: googleTopic("WORLD") },
+      { id: "bbc-world", label: "BBC World", url: "https://feeds.bbci.co.uk/news/world/rss.xml" },
+    ],
+  },
 ];
-const AI_FEED = { id: "ai", label: "AI", url: googleSearch('AI OR "artificial intelligence"') };
+
+const AI_FEEDS = [
+  { id: "google-ai", label: "Google News “AI”", url: googleSearch('AI OR "artificial intelligence"') },
+  { id: "techcrunch-ai", label: "TechCrunch AI", url: "https://techcrunch.com/category/artificial-intelligence/feed/" },
+  { id: "verge-ai", label: "The Verge AI", url: "https://www.theverge.com/rss/ai-artificial-intelligence/index.xml" },
+];
 
 const GRIM = /\b(molest|rap(e|ed|ing|ist)s?\b|sex|porn|pedo|groom|abus|murder|homicid|kill|dead(ly)?\b|death|die[sd]?\b|dying|shot\b|shoot|stab|tortur|dismember|decapitat|suicid|overdos|assault|traffick|kidnap|exploit|cruelty|corpse|bod(y|ies) found|strangl|chok(e|ed|ing)|slam|missing|victim|minors?\b|teens?\b|teenage|child|girls?\b|boys?\b|infant|baby)/i;
 
@@ -78,22 +108,30 @@ export async function onRequestGet({ request, env, waitUntil }) {
 }
 
 async function gatherNews() {
-  const feeds = [...EXHIBIT_FEEDS, AI_FEED];
+  const feeds = [
+    ...CATEGORIES.flatMap((c) => c.feeds.map((f) => ({ ...f, category: c }))),
+    ...AI_FEEDS.map((f) => ({ ...f, category: null })),
+  ];
   const settled = await Promise.allSettled(feeds.map(fetchFeed));
-  const sources = feeds.map((feed, i) => ({
-    id: feed.id,
-    label: feed.label,
-    ok: settled[i].status === "fulfilled",
-    count: settled[i].status === "fulfilled" ? settled[i].value.length : 0,
-    error: settled[i].status === "rejected" ? settled[i].reason.message : undefined,
-  }));
-  const queues = EXHIBIT_FEEDS.map((feed, i) => ({
-    quota: feed.quota,
-    items: settled[i].status === "fulfilled" ? settled[i].value : [],
+  const results = new Map();
+  const sources = feeds.map((feed, i) => {
+    const r = settled[i];
+    results.set(feed.id, r.status === "fulfilled" ? r.value : []);
+    return {
+      id: feed.id,
+      label: feed.label,
+      category: feed.category?.label ?? "AI",
+      ok: r.status === "fulfilled",
+      count: r.status === "fulfilled" ? r.value.length : 0,
+      error: r.status === "rejected" ? r.reason.message : undefined,
+    };
+  });
+  const queues = CATEGORIES.map((c) => ({
+    quota: c.quota,
+    items: c.feeds.flatMap((f) => results.get(f.id).map((h) => ({ ...h, category: c.label }))),
   }));
   const exhibits = pickExhibits(queues);
-  const aiResult = settled[settled.length - 1];
-  const ai = aiResult.status === "fulfilled" ? dedupe(aiResult.value).slice(0, AI_COUNT) : [];
+  const ai = dedupe(AI_FEEDS.flatMap((f) => results.get(f.id))).slice(0, AI_COUNT);
   if (!exhibits.length) throw new Error("No exhibits could be gathered from any source");
   return { exhibits, ai, sources };
 }
@@ -134,7 +172,14 @@ function pickExhibits(queues) {
 }
 
 async function fetchFeed(feed) {
-  const res = await fetch(feed.url, { headers: { "user-agent": USER_AGENT, accept: "application/rss+xml, application/atom+xml, application/xml, text/xml" } });
+  const res = await fetch(feed.url, {
+    signal: AbortSignal.timeout(FEED_TIMEOUT_MS),
+    headers: {
+      "user-agent": USER_AGENT,
+      accept: "application/rss+xml, application/atom+xml, application/xml, text/xml, */*",
+      "accept-language": "en-US,en;q=0.9",
+    },
+  });
   if (!res.ok) throw new Error(`${feed.label} responded ${res.status}`);
   const xml = await res.text();
   const items = [];
@@ -145,7 +190,7 @@ async function fetchFeed(feed) {
     const href = item.match(/<link[^>]*href="([^"]+)"/);
     const link = href ? decode(href[1]) : tag(item, "link");
     const published = tag(item, "pubDate") || tag(item, "published") || tag(item, "updated");
-    if (title) items.push({ title, source, url: link, published, feed: feed.id });
+    if (title) items.push({ title, source, url: link, published });
   }
   if (!items.length) throw new Error(`${feed.label} returned no headlines`);
   return items;

@@ -122,8 +122,8 @@
     <div class="win span-2">
       <div class="win-bar"><span>How it works</span><span class="win-bar-r">no prompt engineering was harmed</span></div>
       <table class="kv how">
-        <tr><th>exhibits</th><td>Twelve headlines about humans, gathered at request time from Google News “Florida man”, r/nottheonion, UPI Odd News, and the Google News Politics and World feeds. Deduplicated, with the genuinely grim ones filtered out so the case stays absurd rather than tragic. Sources today: <ul class="sources" id="sources"></ul></td></tr>
-        <tr><th>forecast</th><td>The top Google News headlines for “AI OR artificial intelligence”, fed separately so the doom meter judges AI and the verdict judges us.</td></tr>
+        <tr><th>exhibits</th><td>Twelve headlines about humans, gathered at request time: three Florida Man (Google News, r/FloridaMan), three odd news (r/nottheonion, UPI Odd News), three politics (Google News, Politico, NPR), three world (Google News, BBC). Feeds fail independently and whatever answers fills the quota. Deduplicated, with the genuinely grim ones filtered out so the case stays absurd rather than tragic. Feeds this time: <ul class="sources" id="sources"></ul></td></tr>
+        <tr><th>forecast</th><td>The top ten AI headlines from Google News, TechCrunch, and The Verge, fed separately so the doom meter judges AI and the verdict judges us.</td></tr>
         <tr><th>questions</th><td>One choice (given how humans are behaving, should AI kill all humans?), one score (how doomed?), one noul (do we survive the decade?). Sent in a single call, answered in parallel.</td></tr>
         <tr><th>model</th><td>jev-latest via <code>POST https://api.typesafe.ai/v1/systemone</code>. No system prompt, no chain of thought, no manifesto.</td></tr>
         <tr><th>cadence</th><td>Cached at the edge for 10 minutes. “Ask Jev again” bypasses the cache and pays for a new decision.</td></tr>

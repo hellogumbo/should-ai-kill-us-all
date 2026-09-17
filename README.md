@@ -10,7 +10,7 @@ Not affiliated with TypeSafe AI, Skynet, or the Basilisk. More projects built on
 
 ## How it works
 
-1. A Cloudflare Pages Function gathers twelve exhibits about humans from Google News "Florida man", r/nottheonion, UPI Odd News, and the Google News Politics and World feeds, plus the top ten AI headlines. Feeds are fetched in parallel and any one may fail. Exhibits are deduplicated and headlines about real tragedy are filtered out so the case stays absurd.
+1. A Cloudflare Pages Function gathers twelve exhibits about humans, three per category: Florida Man (Google News, r/FloridaMan), odd news (r/nottheonion, UPI Odd News), politics (Google News, Politico, NPR), world (Google News, BBC). It also gathers the top ten AI headlines from Google News, TechCrunch, and The Verge. All feeds are fetched in parallel with an 8 second timeout; any feed may fail and the rest fill the quota. Google News intermittently returns 503 to Cloudflare's network and Reddit rate-limits, which is why every category has more than one feed. Exhibits are deduplicated and headlines about real tragedy are filtered out so the case stays absurd.
 2. Both lists go to `POST https://api.typesafe.ai/v1/systemone` as `state: { humanity, ai }`, with three questions in one call:
    - `verdict` (choice): Given how humans are behaving today, should AI kill all humans? `no` / `yes`
    - `doom` (score): Based on today's AI headlines, how doomed is humanity by AI? Five levels, from "Fine, actually" to "It was nice knowing you"

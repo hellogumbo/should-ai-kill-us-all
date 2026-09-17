@@ -37,25 +37,21 @@
     askAgain.disabled = false;
   };
 
-  const headlineList = (items, tagged) => items
+  const headlineList = (items) => items
     .map((h) => {
-      const label = feedLabel(h.feed);
-      const tag = tagged && label !== h.source ? ` <span class="tag">${esc(label)}</span>` : "";
+      const tag = h.category && h.category !== h.source ? ` <span class="tag">${esc(h.category)}</span>` : "";
       return `<li><div><a href="${esc(h.url)}" target="_blank" rel="noopener">${esc(h.title)}</a><span class="src">${esc(h.source || "")}${tag}</span></div></li>`;
     })
     .join("");
 
-  const feedLabels = {};
-  const feedLabel = (id) => feedLabels[id] || id;
-
   const renderNews = (data) => {
-    for (const s of data.sources || []) feedLabels[s.id] = s.label;
-    const live = (data.sources || []).filter((s) => s.ok && s.id !== "ai").length;
-    $("exhibit-count").textContent = `${data.exhibits.length} exhibits · ${live} sources`;
-    $("exhibits").innerHTML = headlineList(data.exhibits, true);
+    const sources = data.sources || [];
+    const live = sources.filter((s) => s.ok).length;
+    $("exhibit-count").textContent = `${data.exhibits.length} exhibits · ${live} of ${sources.length} feeds`;
+    $("exhibits").innerHTML = headlineList(data.exhibits);
     $("ai-count").textContent = `${data.ai.length} headlines`;
-    $("ai-headlines").innerHTML = data.ai.length ? headlineList(data.ai, false) : '<li class="empty">No AI headlines today. Suspicious.</li>';
-    $("sources").innerHTML = (data.sources || [])
+    $("ai-headlines").innerHTML = data.ai.length ? headlineList(data.ai) : '<li class="empty">No AI headlines today. Suspicious.</li>';
+    $("sources").innerHTML = sources
       .map((s) => `<li class="${s.ok ? "" : "is-down"}">${esc(s.label)}<span>${s.ok ? `${s.count} fetched` : "unavailable"}</span></li>`)
       .join("");
   };
