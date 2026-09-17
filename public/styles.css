@@ -233,6 +233,7 @@ table.kv { width: 100%; border-collapse: collapse; font-size: 13px; }
 .levels li { display: flex; gap: 8px; }
 .levels li.is-current { color: var(--ink); font-weight: 500; }
 .levels li::before { content: attr(data-n); width: 12px; }
+.levels li span { margin-left: auto; }
 .noul-big { font-family: var(--display); font-weight: 800; font-size: 56px; letter-spacing: -0.04em; line-height: 1; }
 .noul-label { font-size: 11px; color: var(--gray-3); margin: 8px 0 14px; }
 .bar { height: 14px; border: 1px solid var(--ink); background: var(--gray-1); }

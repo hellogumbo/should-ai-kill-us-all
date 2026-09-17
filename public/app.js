@@ -77,16 +77,19 @@
     $("v-conf").textContent = p4(verdict.confidence);
     $("v-asked").textContent = utc(data.asked_at);
 
-    const levels = request.questions.doom.criteria;
+    const levels = request.questions.doom.criteria.map((l, i) => doom.legend?.[i] ?? l);
     const score = typeof doom.score === "number" ? doom.score : null;
-    const idx = score === null ? -1 : Math.min(levels.length - 1, Math.max(0, Math.round(score) - 1));
-    $("doom-score").textContent = score === null ? "—" : `${score.toFixed(2)} / ${levels.length}`;
+    const idx = score === null ? -1 : Math.min(levels.length - 1, Math.max(0, Math.round(score)));
+    $("doom-score").textContent = score === null ? "—" : `${score.toFixed(2)} / ${levels.length - 1}`;
     $("doom-level").textContent = idx < 0 ? "—" : levels[idx];
     $("doom-meter").innerHTML = levels
       .map((_, i) => `<span class="${i < idx ? "is-on" : i === idx ? "is-hot" : ""}"></span>`)
       .join("");
     $("doom-levels").innerHTML = levels
-      .map((l, i) => `<li data-n="${i + 1}" class="${i === idx ? "is-current" : ""}">${esc(l)}</li>`)
+      .map((l, i) => {
+        const p = doom.probabilities?.[i];
+        return `<li data-n="${i}" class="${i === idx ? "is-current" : ""}">${esc(l)}${typeof p === "number" ? `<span>${pct(p)}</span>` : ""}</li>`;
+      })
       .join("");
 
     const pSurvive = typeof survives.noul === "number" ? survives.noul : null;
