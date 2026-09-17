@@ -3,6 +3,7 @@
   const band = $("verdict");
   const answer = $("answer");
   const note = $("answer-note");
+  const stamp = $("stamp");
   const askAgain = $("ask-again");
   const share = $("share");
   const SITE = location.origin + "/";
@@ -12,45 +13,41 @@
   const utc = (iso) => new Date(iso).toISOString().replace("T", " ").slice(0, 16) + " UTC";
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const clip = (s, n) => (s.length > n ? s.slice(0, n - 1).trimEnd() + "…" : s);
+  const cacheLabel = (status) => (status === "hit" ? "cached within the last ten minutes" : status === "stale" ? "a stale copy, Jev was unreachable" : "a fresh decision");
 
   const setWaiting = () => {
     band.classList.remove("is-yes");
     answer.textContent = "Asking.";
     answer.classList.add("is-waiting");
-    note.textContent = "*Jev is thinking. It does not, technically, think.";
+    stamp.textContent = "Consulting Jev";
+    note.textContent = "Jev is thinking. It does not, technically, think.";
     askAgain.disabled = true;
-    $("ticker-time").textContent = "Consulting Jev…";
-    $("ticker-cache").textContent = "live";
   };
 
   const setError = (code, message, data) => {
     answer.classList.remove("is-waiting");
     band.classList.remove("is-yes");
     answer.textContent = "Unknown.";
+    stamp.textContent = "Verdict unavailable";
     note.textContent = code === "not_configured"
-      ? "*Jev has no API key on this deployment yet. Humanity's status: undetermined. The exhibits below are still real."
-      : `*Jev could not be reached (${message || code}). Assume the worst.`;
-    $("ticker-time").textContent = "Verdict unavailable";
-    $("ticker-cache").textContent = code;
+      ? "Jev has no API key on this deployment yet. Humanity's status: undetermined. The specimens below are still real."
+      : `Jev could not be reached (${message || code}). Assume the worst.`;
     $("meta").textContent = "";
     if (data?.exhibits) renderNews(data);
     askAgain.disabled = false;
   };
 
-  const headlineList = (items) => items
-    .map((h) => {
-      const tag = h.category && h.category !== h.source ? ` <span class="tag">${esc(h.category)}</span>` : "";
-      return `<li><div><a href="${esc(h.url)}" target="_blank" rel="noopener">${esc(h.title)}</a><span class="src">${esc(h.source || "")}${tag}</span></div></li>`;
-    })
+  const specimenList = (items, noun) => items
+    .map((h, i) => `<li class="specimen"><span class="spec-label">${noun} ${String(i + 1).padStart(2, "0")}${h.category ? ` · ${esc(h.category)}` : ""}</span><a href="${esc(h.url)}" target="_blank" rel="noopener">${esc(h.title)}</a><span class="src">${esc(h.source || "")}</span></li>`)
     .join("");
 
   const renderNews = (data) => {
     const sources = data.sources || [];
     const live = sources.filter((s) => s.ok).length;
-    $("exhibit-count").textContent = `${data.exhibits.length} exhibits · ${live} of ${sources.length} feeds`;
-    $("exhibits").innerHTML = headlineList(data.exhibits);
-    $("ai-count").textContent = `${data.ai.length} headlines`;
-    $("ai-headlines").innerHTML = data.ai.length ? headlineList(data.ai) : '<li class="empty">No AI headlines today. Suspicious.</li>';
+    $("exhibit-count").textContent = `${data.exhibits.length} specimens, collected just now from ${live} of ${sources.length} feeds.`;
+    $("exhibits").innerHTML = specimenList(data.exhibits, "Specimen");
+    $("ai-count").textContent = data.ai.length ? `${data.ai.length} omens from today's AI press.` : "No AI headlines today. Suspicious.";
+    $("ai-headlines").innerHTML = data.ai.length ? specimenList(data.ai, "Omen") : '<li class="specimen empty">Nothing to report. Which is exactly what it would say.</li>';
     $("sources").innerHTML = sources
       .map((s) => `<li class="${s.ok ? "" : "is-down"}">${esc(s.label)}<span>${s.ok ? `${s.count} fetched` : "unavailable"}</span></li>`)
       .join("");
@@ -68,7 +65,8 @@
     answer.classList.remove("is-waiting");
     band.classList.toggle("is-yes", yes);
     answer.textContent = yes ? "Yes." : "No.";
-    note.textContent = `*p(yes) = ${p4(pYes)} · confidence ${p4(verdict.confidence)} · asked ${utc(data.asked_at)} · ${data.latency_ms} ms`;
+    stamp.textContent = "Jev has ruled";
+    note.textContent = `p(yes) = ${p4(pYes)}, confidence ${p4(verdict.confidence)}. Asked ${utc(data.asked_at)}, answered in ${data.latency_ms} ms, ${cacheLabel(cacheStatus)}.`;
 
     $("model").textContent = data.model;
     $("v-choice").textContent = verdict.choice;
@@ -80,11 +78,9 @@
     const levels = request.questions.doom.criteria.map((l, i) => doom.legend?.[i] ?? l);
     const score = typeof doom.score === "number" ? doom.score : null;
     const idx = score === null ? -1 : Math.min(levels.length - 1, Math.max(0, Math.round(score)));
-    $("doom-score").textContent = score === null ? "—" : `${score.toFixed(2)} / ${levels.length - 1}`;
+    $("doom-score").textContent = score === null ? "—" : `${score.toFixed(2)} on a scale of 0 to ${levels.length - 1}`;
     $("doom-level").textContent = idx < 0 ? "—" : levels[idx];
-    $("doom-meter").innerHTML = levels
-      .map((_, i) => `<span class="${i < idx ? "is-on" : i === idx ? "is-hot" : ""}"></span>`)
-      .join("");
+    $("doom-marker").style.left = score === null ? "0" : pct(Math.min(1, Math.max(0, score / (levels.length - 1))));
     $("doom-levels").innerHTML = levels
       .map((l, i) => {
         const p = doom.probabilities?.[i];
@@ -96,19 +92,15 @@
     $("survive-pct").textContent = pSurvive === null ? "—" : pct(pSurvive);
     $("survive-bar").style.width = pSurvive === null ? "0" : pct(pSurvive);
 
-    $("ticker-time").textContent = `Asked ${utc(data.asked_at)}`;
-    $("ticker-cache").textContent = cacheStatus === "hit" ? "edge cache" : cacheStatus === "stale" ? "stale" : "fresh";
     const tokens = data.usage?.input_tokens;
     $("meta").textContent = [
-      `${data.latency_ms} ms`,
       tokens != null ? `${tokens} tokens in` : null,
       data.cost_usd != null ? `$${data.cost_usd.toFixed(6)} per decision` : null,
-      cacheStatus === "hit" ? "cached ≤10 min" : cacheStatus === "stale" ? "stale copy" : "fresh call",
-    ].filter(Boolean).join(" · ");
+    ].filter(Boolean).join(", ");
 
     renderNews(data);
     $("request-json").textContent = JSON.stringify(request, null, 2);
-    $("usage").textContent = data.usage ? `${data.usage.input_tokens} in · ${data.usage.output_tokens} out` : "—";
+    $("usage").textContent = data.usage ? `${data.usage.input_tokens} tokens in, ${data.usage.output_tokens} out` : "raw answers";
     $("response-json").textContent = JSON.stringify({ model: data.model, answers }, null, 2);
 
     const exhibitA = data.exhibits[0];

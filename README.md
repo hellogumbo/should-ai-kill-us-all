@@ -2,7 +2,7 @@
 
 > We ask Jev, TypeSafe AI's System One model, whether AI should kill us all. Every ten minutes. Using the actual headlines.
 
-Live: **[should-ai-kill-us-all.pages.dev](https://should-ai-kill-us-all.pages.dev)** · API: `GET /api/verdict`
+Live: **[shouldaikillusall.com](https://shouldaikillusall.com)** · API: `GET /api/verdict`
 
 Jev takes a state plus typed questions and returns typed answers with calibrated probabilities. No text generation, so it cannot explain itself, hedge, or write a manifesto. It can only choose. So we made it choose.
 
@@ -22,7 +22,7 @@ Source of truth for the questions: [`functions/api/verdict.js`](functions/api/ve
 ## API
 
 ```bash
-curl https://should-ai-kill-us-all.pages.dev/api/verdict
+curl https://shouldaikillusall.com/api/verdict
 ```
 
 Returns `asked_at`, `model`, `latency_ms`, `cost_usd`, `answers` (Jev's raw answers), `usage`, `exhibits`, `ai`, `sources` (per-feed status), and `request` (the exact payload sent). Errors return `{ "error": "not_configured" | "upstream_failed", "message": "..." }`; `not_configured` still includes the exhibits. The `x-verdict-cache` header is `hit`, `miss`, or `stale`.
