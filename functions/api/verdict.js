@@ -1,7 +1,7 @@
 const TTL_SECONDS = 600;
 const EXHIBIT_COUNT = 12;
 const AI_COUNT = 10;
-const FEED_TIMEOUT_MS = 8000;
+const FEED_TIMEOUT_MS = 4000;
 const TYPESAFE_URL = "https://api.typesafe.ai/v1/systemone";
 const INPUT_USD_PER_MTOK = 0.042;
 const USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36 should-ai-kill-us-all/1.0";
@@ -15,6 +15,7 @@ const CATEGORIES = [
     feeds: [
       { id: "google-florida", label: "Google News “Florida man”", url: googleSearch('"Florida man" when:2d') },
       { id: "reddit-floridaman", label: "r/FloridaMan", url: "https://www.reddit.com/r/FloridaMan/top/.rss?t=week" },
+      { id: "bing-florida", label: "Bing News “Florida man”", url: "https://www.bing.com/news/search?q=%22Florida+man%22&format=rss" },
     ],
   },
   {
