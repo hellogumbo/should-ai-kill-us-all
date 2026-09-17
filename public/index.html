@@ -33,7 +33,7 @@
   <div class="ticker win">
     <div class="win-bar"><span id="ticker-time">Consulting Jev…</span><span class="win-bar-r" id="ticker-cache">live</span></div>
     <div class="ticker-body">
-      <span>One state, three typed questions, zero text generation. Refreshed every ten minutes.</span>
+      <span>Exhibits: Florida Man, r/nottheonion, UPI Odd News, politics, world. Verdict: typed. Refreshed every ten minutes.</span>
       <a href="#verdict">Verdict ↓</a>
     </div>
   </div>
@@ -44,7 +44,7 @@
   <span class="marks" aria-hidden="true"></span>
   <p class="kicker">A live decision <span class="dots"></span> Not affiliated with TypeSafe AI, Skynet, or the Basilisk</p>
   <h1>Should AI<br>Kill Us All?</h1>
-  <p class="sub">Every ten minutes we hand the day's AI headlines to Jev, a model that can't write a manifesto. It can only answer typed questions with calibrated probabilities. Below is its answer.</p>
+  <p class="sub">Every ten minutes we show Jev what humans did today: Florida Man, r/nottheonion, odd news, politics, world. Then we ask a model that can't write a manifesto whether we have it coming. The AI headlines decide how doomed we are.</p>
   <div class="big-links">
     <a href="#verdict">See the verdict</a>
     <a href="https://x.com/intent/post?text=Should%20AI%20kill%20us%20all%3F%20We%20asked%20Jev.%20https%3A%2F%2Fshould-ai-kill-us-all.pages.dev" id="share" target="_blank" rel="noopener">Share on X</a>
@@ -98,25 +98,33 @@
 
   <div class="grid-2">
     <div class="win">
-      <div class="win-bar"><span>State · headlines fed to Jev</span><span class="win-bar-r" id="headline-count">0</span></div>
-      <ol class="headlines" id="headlines"><li class="empty">Waiting for the news cycle.</li></ol>
+      <div class="win-bar"><span>State · the case against humanity</span><span class="win-bar-r" id="exhibit-count">0 exhibits</span></div>
+      <ol class="headlines" id="exhibits"><li class="empty">Gathering exhibits.</li></ol>
     </div>
     <div class="win">
-      <div class="win-bar"><span>Request · POST /v1/systemone</span><span class="win-bar-r">exact payload</span></div>
-      <pre class="code"><code id="request-json">…</code></pre>
+      <div class="win-bar"><span>State · the case for doom · AI headlines</span><span class="win-bar-r" id="ai-count">0 headlines</span></div>
+      <ol class="headlines" id="ai-headlines"><li class="empty">Waiting for the news cycle.</li></ol>
     </div>
   </div>
 
   <div class="grid-2">
     <div class="win">
+      <div class="win-bar"><span>Request · POST /v1/systemone</span><span class="win-bar-r">exact payload</span></div>
+      <pre class="code"><code id="request-json">…</code></pre>
+    </div>
+    <div class="win">
       <div class="win-bar"><span>Response · raw answers</span><span class="win-bar-r" id="usage">—</span></div>
       <pre class="code"><code id="response-json">…</code></pre>
     </div>
-    <div class="win">
+  </div>
+
+  <div class="grid-2">
+    <div class="win span-2">
       <div class="win-bar"><span>How it works</span><span class="win-bar-r">no prompt engineering was harmed</span></div>
       <table class="kv how">
-        <tr><th>state</th><td>The top 12 Google News headlines for “AI OR artificial intelligence”, deduplicated, at request time.</td></tr>
-        <tr><th>questions</th><td>One choice (should it?), one score (how doomed?), one noul (do we survive the decade?). Sent in a single call, answered in parallel.</td></tr>
+        <tr><th>exhibits</th><td>Twelve headlines about humans, gathered at request time from Google News “Florida man”, r/nottheonion, UPI Odd News, and the Google News Politics and World feeds. Deduplicated, with the genuinely grim ones filtered out so the case stays absurd rather than tragic. Sources today: <ul class="sources" id="sources"></ul></td></tr>
+        <tr><th>forecast</th><td>The top Google News headlines for “AI OR artificial intelligence”, fed separately so the doom meter judges AI and the verdict judges us.</td></tr>
+        <tr><th>questions</th><td>One choice (given how humans are behaving, should AI kill all humans?), one score (how doomed?), one noul (do we survive the decade?). Sent in a single call, answered in parallel.</td></tr>
         <tr><th>model</th><td>jev-latest via <code>POST https://api.typesafe.ai/v1/systemone</code>. No system prompt, no chain of thought, no manifesto.</td></tr>
         <tr><th>cadence</th><td>Cached at the edge for 10 minutes. “Ask Jev again” bypasses the cache and pays for a new decision.</td></tr>
         <tr><th>api</th><td><code>curl https://should-ai-kill-us-all.pages.dev/api/verdict</code></td></tr>

@@ -11,6 +11,7 @@
   const pct = (x) => `${(x * 100).toFixed(1)}%`;
   const utc = (iso) => new Date(iso).toISOString().replace("T", " ").slice(0, 16) + " UTC";
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const clip = (s, n) => (s.length > n ? s.slice(0, n - 1).trimEnd() + "…" : s);
 
   const setWaiting = () => {
     band.classList.remove("is-yes");
@@ -22,21 +23,45 @@
     $("ticker-cache").textContent = "live";
   };
 
-  const setError = (code, message) => {
+  const setError = (code, message, data) => {
     answer.classList.remove("is-waiting");
     band.classList.remove("is-yes");
     answer.textContent = "Unknown.";
     note.textContent = code === "not_configured"
-      ? "*Jev has no API key on this deployment yet. Humanity's status: undetermined."
+      ? "*Jev has no API key on this deployment yet. Humanity's status: undetermined. The exhibits below are still real."
       : `*Jev could not be reached (${message || code}). Assume the worst.`;
     $("ticker-time").textContent = "Verdict unavailable";
     $("ticker-cache").textContent = code;
     $("meta").textContent = "";
+    if (data?.exhibits) renderNews(data);
     askAgain.disabled = false;
   };
 
+  const headlineList = (items, tagged) => items
+    .map((h) => {
+      const label = feedLabel(h.feed);
+      const tag = tagged && label !== h.source ? ` <span class="tag">${esc(label)}</span>` : "";
+      return `<li><div><a href="${esc(h.url)}" target="_blank" rel="noopener">${esc(h.title)}</a><span class="src">${esc(h.source || "")}${tag}</span></div></li>`;
+    })
+    .join("");
+
+  const feedLabels = {};
+  const feedLabel = (id) => feedLabels[id] || id;
+
+  const renderNews = (data) => {
+    for (const s of data.sources || []) feedLabels[s.id] = s.label;
+    const live = (data.sources || []).filter((s) => s.ok && s.id !== "ai").length;
+    $("exhibit-count").textContent = `${data.exhibits.length} exhibits · ${live} sources`;
+    $("exhibits").innerHTML = headlineList(data.exhibits, true);
+    $("ai-count").textContent = `${data.ai.length} headlines`;
+    $("ai-headlines").innerHTML = data.ai.length ? headlineList(data.ai, false) : '<li class="empty">No AI headlines today. Suspicious.</li>';
+    $("sources").innerHTML = (data.sources || [])
+      .map((s) => `<li class="${s.ok ? "" : "is-down"}">${esc(s.label)}<span>${s.ok ? `${s.count} fetched` : "unavailable"}</span></li>`)
+      .join("");
+  };
+
   const render = (data, cacheStatus) => {
-    const { answers, headlines, request } = data;
+    const { answers, request } = data;
     const verdict = answers.verdict;
     const doom = answers.doom || {};
     const survives = answers.survives || {};
@@ -82,19 +107,15 @@
       cacheStatus === "hit" ? "cached ≤10 min" : cacheStatus === "stale" ? "stale copy" : "fresh call",
     ].filter(Boolean).join(" · ");
 
-    $("headline-count").textContent = `${headlines.length} · ${request.state.date}`;
-    $("headlines").innerHTML = headlines
-      .map((h) => `<li><div><a href="${esc(h.url)}" target="_blank" rel="noopener">${esc(h.title)}</a><span class="src">${esc(h.source || "")}</span></div></li>`)
-      .join("");
+    renderNews(data);
     $("request-json").textContent = JSON.stringify(request, null, 2);
     $("usage").textContent = data.usage ? `${data.usage.input_tokens} in · ${data.usage.output_tokens} out` : "—";
     $("response-json").textContent = JSON.stringify({ model: data.model, answers }, null, 2);
 
+    const exhibitA = data.exhibits[0];
     const text = [
-      `Jev says AI should ${yes ? "" : "NOT "}kill us all.`,
-      `p(yes) = ${p4(pYes)}.`,
+      `Jev says AI should ${yes ? "" : "NOT "}kill us all (p(yes) = ${p4(pYes)})${exhibitA ? `, ${yes ? "after" : "even after"} reading: “${clip(exhibitA.title, 90)}”` : ""}.`,
       idx >= 0 ? `Doom level: ${levels[idx]}.` : null,
-      pSurvive !== null ? `Humanity survives the decade: ${pct(pSurvive)}.` : null,
       SITE,
     ].filter(Boolean).join(" ");
     share.href = `https://x.com/intent/post?text=${encodeURIComponent(text)}`;
@@ -111,7 +132,7 @@
     } catch (err) {
       return setError("upstream_failed", err.message);
     }
-    if (!res.ok || data.error) return setError(data.error || `http ${res.status}`, data.message);
+    if (!res.ok || data.error) return setError(data.error || `http ${res.status}`, data.message, data);
     render(data, res.headers.get("x-verdict-cache"));
   };
 
