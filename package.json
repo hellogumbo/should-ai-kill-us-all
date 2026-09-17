@@ -1,0 +1,15 @@
+{
+  "name": "should-ai-kill-us-all",
+  "version": "1.0.0",
+  "private": true,
+  "description": "We ask Jev, TypeSafe AI's System One model, whether AI should kill us all. Every ten minutes. Using the actual headlines.",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler pages dev",
+    "deploy": "wrangler pages deploy"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "CC0-1.0"
+}

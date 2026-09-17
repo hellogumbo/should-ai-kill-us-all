@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Should AI Kill Us All?</title>
+<meta name="description" content="We ask Jev, TypeSafe AI's System One model, whether AI should kill us all. Every ten minutes. Using the actual headlines.">
+<link rel="canonical" href="https://should-ai-kill-us-all.pages.dev/">
+<meta property="og:title" content="Should AI Kill Us All?">
+<meta property="og:description" content="A live verdict from Jev, a model that can't write a manifesto. State: today's headlines. Refreshed every ten minutes.">
+<meta property="og:url" content="https://should-ai-kill-us-all.pages.dev/">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://should-ai-kill-us-all.pages.dev/assets/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600;700;800&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="hero">
+  <nav class="nav">
+    <a class="nav-item brand" href="/">Should AI Kill Us All?</a>
+    <div class="nav-mid">
+      <a class="nav-item" href="#verdict">Verdict</a>
+      <a class="nav-item" href="#how">How it works</a>
+      <a class="nav-item" href="https://awesomejev.com">Awesome Jev</a>
+    </div>
+    <a class="nav-item" href="https://github.com/hellogumbo/should-ai-kill-us-all">GitHub</a>
+  </nav>
+  <div class="ticker win">
+    <div class="win-bar"><span id="ticker-time">Consulting Jev…</span><span class="win-bar-r" id="ticker-cache">live</span></div>
+    <div class="ticker-body">
+      <span>One state, three typed questions, zero text generation. Refreshed every ten minutes.</span>
+      <a href="#verdict">Verdict ↓</a>
+    </div>
+  </div>
+  <span class="side-string" aria-hidden="true">JEV-LATEST · POST /V1/SYSTEMONE · STATE: THE HEADLINES</span>
+</header>
+
+<section class="title frame">
+  <span class="marks" aria-hidden="true"></span>
+  <p class="kicker">A live decision <span class="dots"></span> Not affiliated with TypeSafe AI, Skynet, or the Basilisk</p>
+  <h1>Should AI<br>Kill Us All?</h1>
+  <p class="sub">Every ten minutes we hand the day's AI headlines to Jev, a model that can't write a manifesto. It can only answer typed questions with calibrated probabilities. Below is its answer.</p>
+  <div class="big-links">
+    <a href="#verdict">See the verdict</a>
+    <a href="https://x.com/intent/post?text=Should%20AI%20kill%20us%20all%3F%20We%20asked%20Jev.%20https%3A%2F%2Fshould-ai-kill-us-all.pages.dev" id="share" target="_blank" rel="noopener">Share on X</a>
+  </div>
+</section>
+
+<section class="band" id="verdict">
+  <div class="band-inner frame">
+    <span class="marks" aria-hidden="true"></span>
+    <h2 class="giant" id="answer">Asking.</h2>
+    <p class="footnote" id="answer-note">*Jev is thinking. It does not, technically, think.</p>
+
+    <div class="band-grid three">
+      <div class="win">
+        <div class="win-bar"><span>Verdict · choice</span><span class="win-bar-r" id="model">jev-latest</span></div>
+        <table class="kv">
+          <tr><th>choice</th><td id="v-choice">—</td></tr>
+          <tr><th>p(no)</th><td id="v-pno">—</td></tr>
+          <tr><th>p(yes)</th><td id="v-pyes">—</td></tr>
+          <tr><th>confidence</th><td id="v-conf">—</td></tr>
+          <tr><th>asked</th><td id="v-asked">—</td></tr>
+        </table>
+      </div>
+      <div class="win">
+        <div class="win-bar"><span>Doom meter · score</span><span class="win-bar-r" id="doom-score">—</span></div>
+        <div class="meter-body">
+          <p class="meter-level" id="doom-level">—</p>
+          <div class="meter" id="doom-meter" aria-hidden="true"></div>
+          <ol class="levels" id="doom-levels"></ol>
+        </div>
+      </div>
+      <div class="win">
+        <div class="win-bar"><span>Do we make it? · noul</span><span class="win-bar-r">next decade</span></div>
+        <div class="noul-body">
+          <p class="noul-big" id="survive-pct">—</p>
+          <p class="noul-label">p(humanity survives the next decade)</p>
+          <div class="bar"><div class="bar-fill" id="survive-bar"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn" id="ask-again" type="button">Ask Jev again</button>
+      <span class="actions-meta mono" id="meta"></span>
+    </div>
+  </div>
+</section>
+
+<main class="frame" id="how">
+  <span class="marks" aria-hidden="true"></span>
+
+  <div class="grid-2">
+    <div class="win">
+      <div class="win-bar"><span>State · headlines fed to Jev</span><span class="win-bar-r" id="headline-count">0</span></div>
+      <ol class="headlines" id="headlines"><li class="empty">Waiting for the news cycle.</li></ol>
+    </div>
+    <div class="win">
+      <div class="win-bar"><span>Request · POST /v1/systemone</span><span class="win-bar-r">exact payload</span></div>
+      <pre class="code"><code id="request-json">…</code></pre>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="win">
+      <div class="win-bar"><span>Response · raw answers</span><span class="win-bar-r" id="usage">—</span></div>
+      <pre class="code"><code id="response-json">…</code></pre>
+    </div>
+    <div class="win">
+      <div class="win-bar"><span>How it works</span><span class="win-bar-r">no prompt engineering was harmed</span></div>
+      <table class="kv how">
+        <tr><th>state</th><td>The top 12 Google News headlines for “AI OR artificial intelligence”, deduplicated, at request time.</td></tr>
+        <tr><th>questions</th><td>One choice (should it?), one score (how doomed?), one noul (do we survive the decade?). Sent in a single call, answered in parallel.</td></tr>
+        <tr><th>model</th><td>jev-latest via <code>POST https://api.typesafe.ai/v1/systemone</code>. No system prompt, no chain of thought, no manifesto.</td></tr>
+        <tr><th>cadence</th><td>Cached at the edge for 10 minutes. “Ask Jev again” bypasses the cache and pays for a new decision.</td></tr>
+        <tr><th>api</th><td><code>curl https://should-ai-kill-us-all.pages.dev/api/verdict</code></td></tr>
+      </table>
+    </div>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-col">
+      <p class="mono">SHOULD AI KILL US ALL? · A JEV DEMO</p>
+      <p>All three Jev primitives, pointed at the only question on the timeline. Source on <a href="https://github.com/hellogumbo/should-ai-kill-us-all">GitHub</a>, content CC0. More projects built on Jev at <a href="https://awesomejev.com">awesomejev.com</a>.</p>
+    </div>
+    <div class="footer-col">
+      <p class="mono">LINKS</p>
+      <p><a href="https://github.com/hellogumbo/should-ai-kill-us-all">github.com/hellogumbo/should-ai-kill-us-all</a><br><a href="https://typesafe.ai">typesafe.ai</a> · <a href="https://docs.typesafe.ai">docs</a> · <a href="https://docs.typesafe.ai/primitives">primitives</a></p>
+    </div>
+    <div class="footer-col">
+      <p class="mono">COLOPHON</p>
+      <p>Not affiliated with TypeSafe AI. Jev's answers are calibrated probabilities, not a threat assessment. If the verdict is ever YES, please open an issue.</p>
+      <a class="footer-brand" href="https://hellogumbo.com"><span class="mono">MAINTAINED BY</span><img src="assets/gumbo-wordmark-white.svg" alt="Gumbo" width="112" height="22"></a>
+    </div>
+  </div>
+</footer>
+
+<script src="app.js" defer></script>
+</body>
+</html>
