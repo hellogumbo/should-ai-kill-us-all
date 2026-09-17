@@ -2,6 +2,7 @@ const TTL_SECONDS = 600;
 const EXHIBIT_COUNT = 12;
 const AI_COUNT = 10;
 const FEED_TIMEOUT_MS = 4000;
+const MIN_TITLE_LENGTH = 24;
 const TYPESAFE_URL = "https://api.typesafe.ai/v1/systemone";
 const INPUT_USD_PER_MTOK = 0.042;
 const USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36 should-ai-kill-us-all/1.0";
@@ -185,7 +186,7 @@ async function fetchFeed(feed) {
     const href = item.match(/<link[^>]*href="([^"]+)"/);
     const link = href ? decode(href[1]) : tag(item, "link");
     const published = tag(item, "pubDate") || tag(item, "published") || tag(item, "updated");
-    if (title) items.push({ title, source, url: link, published });
+    if (title.length >= MIN_TITLE_LENGTH) items.push({ title, source, url: link, published });
   }
   if (!items.length) throw new Error(`${feed.label} returned no headlines`);
   return items;
