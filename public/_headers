@@ -1,4 +1,2 @@
-/*.js
-  Cache-Control: public, max-age=0, must-revalidate
-/*.css
+/*
   Cache-Control: public, max-age=0, must-revalidate
