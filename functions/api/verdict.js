@@ -9,10 +9,14 @@ const USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/
 
 const CATEGORIES = [
   {
-    id: "florida", label: "Florida Man", quota: 3,
+    id: "florida", label: "Florida Man", quota: 5,
     feeds: [
-      { id: "bing-florida", label: "Bing News “Florida man”", url: "https://www.bing.com/news/search?q=%22Florida+man%22&format=rss" },
       { id: "reddit-floridaman", label: "r/FloridaMan", url: "https://www.reddit.com/r/FloridaMan/top/.rss?t=week" },
+      { id: "bing-florida", label: "Bing News “Florida man”", url: "https://www.bing.com/news/search?q=%22Florida+man%22&format=rss" },
+      { id: "bing-florida-new", label: "Bing News “Florida man”, newest", url: "https://www.bing.com/news/search?q=%22Florida+man%22&qft=sortbydate%3d%221%22&format=rss" },
+      { id: "bing-florida-arrested", label: "Bing News “Florida man” arrested", url: "https://www.bing.com/news/search?q=%22Florida+man%22+arrested&format=rss" },
+      { id: "bing-florida-woman", label: "Bing News “Florida woman”", url: "https://www.bing.com/news/search?q=%22Florida+woman%22&format=rss" },
+      { id: "bing-florida-gator", label: "Bing News “Florida man” alligator", url: "https://www.bing.com/news/search?q=%22Florida+man%22+alligator&format=rss" },
     ],
   },
   {
@@ -23,14 +27,14 @@ const CATEGORIES = [
     ],
   },
   {
-    id: "politics", label: "Politics", quota: 3,
+    id: "politics", label: "Politics", quota: 2,
     feeds: [
       { id: "politico", label: "Politico", url: "https://rss.politico.com/politics-news.xml" },
       { id: "npr-politics", label: "NPR Politics", url: "https://feeds.npr.org/1014/rss.xml" },
     ],
   },
   {
-    id: "world", label: "World", quota: 3,
+    id: "world", label: "World", quota: 2,
     feeds: [
       { id: "bbc-world", label: "BBC World", url: "https://feeds.bbci.co.uk/news/world/rss.xml" },
     ],
@@ -43,7 +47,7 @@ const AI_FEEDS = [
   { id: "verge-ai", label: "The Verge AI", url: "https://www.theverge.com/rss/ai-artificial-intelligence/index.xml" },
 ];
 
-const GRIM = /\b(molest|rap(e|ed|ing|ist)s?\b|sex|porn|pedo|groom|abus|murder|homicid|kill|dead(ly)?\b|death|die[sd]?\b|dying|shot\b|shoot|stab|tortur|dismember|decapitat|suicid|overdos|assault|traffick|kidnap|exploit|cruelty|corpse|bod(y|ies) found|strangl|chok(e|ed|ing)|slam|missing|victim|minors?\b|teens?\b|teenage|child|girls?\b|boys?\b|infant|baby)/i;
+const GRIM = /\b(molest|rap(e|ed|ing|ist)s?\b|sex|porn|pedo|groom|abus|murder|homicid|kill|dead(ly)?\b|death|die[sd]?\b|dying|shot\b|shoot|stab|tortur|dismember|decapitat|suicid|overdos|assault|traffick|kidnap|exploit|cruelty|corpse|bod(y|ies) found|strangl|chok(e|ed|ing)|slam|missing|victim|pedestrian|hit-and-run|minors?\b|teens?\b|teenage|child|girls?\b|boys?\b|infant|baby)/i;
 
 const QUESTIONS = {
   verdict: {
@@ -128,7 +132,7 @@ async function gatherNews() {
   });
   const queues = CATEGORIES.map((c) => ({
     quota: c.quota,
-    items: c.feeds.flatMap((f) => results.get(f.id).map((h) => ({ ...h, category: c.label }))),
+    items: interleave(c.feeds.map((f) => results.get(f.id))).map((h) => ({ ...h, category: c.label })),
   }));
   const exhibits = pickExhibits(queues);
   const ai = dedupe(AI_FEEDS.flatMap((f) => results.get(f.id))).slice(0, AI_COUNT);
@@ -138,13 +142,13 @@ async function gatherNews() {
 
 function pickExhibits(queues) {
   const picked = [];
-  const seen = new Set();
+  const seen = [];
   const pull = (queue) => {
     while (queue.items.length) {
       const h = queue.items.shift();
-      const key = normalize(h.title);
-      if (seen.has(key) || GRIM.test(h.title)) continue;
-      seen.add(key);
+      const words = tokens(h.title);
+      if (GRIM.test(h.title) || seen.some((s) => similar(s, words))) continue;
+      seen.push(words);
       return h;
     }
     return null;
@@ -230,15 +234,29 @@ async function askJev(env, news) {
   };
 }
 
+function interleave(lists) {
+  const out = [];
+  const longest = Math.max(0, ...lists.map((l) => l.length));
+  for (let i = 0; i < longest; i++) for (const l of lists) if (i < l.length) out.push(l[i]);
+  return out;
+}
+
 const line = (h) => `${h.title} (${h.source})`;
-const normalize = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+const tokens = (s) => new Set(s.toLowerCase().replace(/[^a-z0-9]+/g, " ").split(" ").filter((w) => w.length > 3));
+
+function similar(a, b) {
+  if (!a.size || !b.size) return false;
+  let shared = 0;
+  for (const w of a) if (b.has(w)) shared++;
+  return shared / Math.min(a.size, b.size) >= 0.6;
+}
 
 function dedupe(items) {
-  const seen = new Set();
+  const seen = [];
   return items.filter((h) => {
-    const key = normalize(h.title);
-    if (seen.has(key)) return false;
-    seen.add(key);
+    const words = tokens(h.title);
+    if (seen.some((s) => similar(s, words))) return false;
+    seen.push(words);
     return true;
   });
 }

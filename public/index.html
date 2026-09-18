@@ -135,7 +135,7 @@
     <p class="eyebrow">Method</p>
     <h2>How it works</h2>
     <dl class="how-list">
-      <dt>exhibits</dt><dd>Twelve headlines about humans, gathered at request time: three Florida Man (Bing News, r/FloridaMan), three odd news (r/nottheonion, UPI Odd News), three politics (Politico, NPR), three world (BBC). Feeds fail independently and whatever answers fills the quota. Deduplicated, with the genuinely grim ones filtered out so the case stays absurd rather than tragic. Feeds this time: <ul class="sources" id="sources"></ul></dd>
+      <dt>exhibits</dt><dd>Twelve headlines about humans, gathered at request time: five Florida Man (r/FloridaMan plus five Bing News searches: “Florida man”, newest, arrested, “Florida woman”, alligator), three odd news (r/nottheonion, UPI Odd News), two politics (Politico, NPR), two world (BBC). Feeds fail independently and whatever answers fills the quota. Deduplicated, with the genuinely grim ones filtered out so the case stays absurd rather than tragic. Feeds this time: <ul class="sources" id="sources"></ul></dd>
       <dt>forecast</dt><dd>The top ten AI headlines from Bing News, TechCrunch, and The Verge, fed separately so the doom meter judges AI and the verdict judges us.</dd>
       <dt>questions</dt><dd>One choice (given how humans are behaving, should AI kill all humans?), which is the verdict. One noul asking the same thing as a statement, which is the oracle's calibrated probability. One score (how doomed?) and one noul (do we survive the decade?). Sent in a single call, answered in parallel. If the choice and the noul ever disagree, the stamp says so.</dd>
       <dt>model</dt><dd>jev-latest via <code>POST https://api.typesafe.ai/v1/systemone</code>. No system prompt, no chain of thought, no manifesto.</dd>
@@ -176,7 +176,10 @@
       <button class="arrow" id="arrow-next" type="button" aria-label="Next headline"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.17 6a30.2 30.2 0 0 1 5.62 5.406c.14.174.21.384.21.594m-5.83 6a30.2 30.2 0 0 0 5.62-5.406A.95.95 0 0 0 21 12m0 0H3"/></svg></button>
     </div>
     <p class="counter" id="counter" aria-live="polite"></p>
-    <blockquote class="tweet-preview" id="tweet-preview"></blockquote>
+    <div class="field-note">
+      <span class="note-label">Field note, as it will read</span>
+      <p class="note-text" id="tweet-preview"></p>
+    </div>
     <div class="modal-actions">
       <a class="pill" id="post-x" href="https://x.com/intent/post" target="_blank" rel="noopener" aria-label="Post to X">Post to<svg aria-hidden="true" viewBox="0 0 24 24" fill="none"><path d="M8.563 3.092C8.247 2.999 7.916 3 7.586 3H5.953c-.307 0-.595 0-.829.021-.23.022-.577.074-.88.306-.369.285-.594.72-.612 1.185-.015.381.142.694.259.895.117.203.284.438.461.688L9.4 13.22l-5.501 6.287a.9.9 0 1 0 1.355 1.185l5.216-5.961 3.526 4.978.045.064c.19.268.381.54.64.743.225.178.482.311.758.392.315.093.646.092.976.092h1.634c.306 0 .595 0 .828-.021.231-.022.578-.074.88-.306.37-.285.594-.72.612-1.185.016-.381-.142-.694-.258-.895-.118-.203-.285-.438-.462-.688L14.3 10.353l5.128-5.86a.9.9 0 0 0-1.354-1.185L13.23 8.843l-3.224-4.552-.045-.063c-.19-.27-.38-.54-.639-.744a2.3 2.3 0 0 0-.758-.392Z" fill="currentColor"/></svg></a>
       <button class="pill pill-ghost" type="button" data-close>Cancel</button>
