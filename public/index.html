@@ -48,7 +48,7 @@
     <p class="sub">Every ten minutes we show Jev what humans did today: Florida Man, r/nottheonion, odd news, politics, world. Then we ask a model that can't write a manifesto whether we have it coming. The AI headlines decide how doomed we are.</p>
     <div class="cta">
       <a class="pill" href="#verdict">See the verdict</a>
-      <a class="pill pill-ghost" href="https://x.com/intent/post?text=Should%20AI%20kill%20us%20all%3F%20We%20asked%20Jev.%20https%3A%2F%2Fshouldaikillusall.com" id="share" target="_blank" rel="noopener">Share on X</a>
+      <a class="pill pill-ghost" href="https://x.com/intent/post?text=Should%20AI%20kill%20us%20all%3F%20We%20asked%20Jev.%20https%3A%2F%2Fshouldaikillusall.com" id="share" target="_blank" rel="noopener" aria-label="Share on X">Share on<svg aria-hidden="true" viewBox="0 0 24 24" fill="none"><path d="M8.563 3.092C8.247 2.999 7.916 3 7.586 3H5.953c-.307 0-.595 0-.829.021-.23.022-.577.074-.88.306-.369.285-.594.72-.612 1.185-.015.381.142.694.259.895.117.203.284.438.461.688L9.4 13.22l-5.501 6.287a.9.9 0 1 0 1.355 1.185l5.216-5.961 3.526 4.978.045.064c.19.268.381.54.64.743.225.178.482.311.758.392.315.093.646.092.976.092h1.634c.306 0 .595 0 .828-.021.231-.022.578-.074.88-.306.37-.285.594-.72.612-1.185.016-.381-.142-.694-.258-.895-.118-.203-.285-.438-.462-.688L14.3 10.353l5.128-5.86a.9.9 0 0 0-1.354-1.185L13.23 8.843l-3.224-4.552-.045-.063c-.19-.27-.38-.54-.639-.744a2.3 2.3 0 0 0-.758-.392Z" fill="currentColor"/></svg></a>
     </div>
   </div>
 </section>
@@ -164,6 +164,25 @@
     </div>
   </div>
 </footer>
+
+<div class="modal" id="share-modal" hidden>
+  <div class="modal-backdrop" data-close></div>
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="share-title">
+    <p class="plate-label" id="share-title">Choose an exhibit for the tweet</p>
+    <p class="modal-hint">Arrow through the specimens, or swipe. Jev's ruling stays the same, you pick the evidence.</p>
+    <div class="carousel">
+      <button class="arrow" id="arrow-prev" type="button" aria-label="Previous headline"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.83 6a30.2 30.2 0 0 0-5.62 5.406A.95.95 0 0 0 4 12m5.83 6a30.2 30.2 0 0 1-5.62-5.406A.95.95 0 0 1 4 12m0 0h16"/></svg></button>
+      <div class="stage" id="stage"><article class="card" id="card"></article></div>
+      <button class="arrow" id="arrow-next" type="button" aria-label="Next headline"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.17 6a30.2 30.2 0 0 1 5.62 5.406c.14.174.21.384.21.594m-5.83 6a30.2 30.2 0 0 0 5.62-5.406A.95.95 0 0 0 21 12m0 0H3"/></svg></button>
+    </div>
+    <p class="counter" id="counter" aria-live="polite"></p>
+    <blockquote class="tweet-preview" id="tweet-preview"></blockquote>
+    <div class="modal-actions">
+      <a class="pill" id="post-x" href="https://x.com/intent/post" target="_blank" rel="noopener" aria-label="Post to X">Post to<svg aria-hidden="true" viewBox="0 0 24 24" fill="none"><path d="M8.563 3.092C8.247 2.999 7.916 3 7.586 3H5.953c-.307 0-.595 0-.829.021-.23.022-.577.074-.88.306-.369.285-.594.72-.612 1.185-.015.381.142.694.259.895.117.203.284.438.461.688L9.4 13.22l-5.501 6.287a.9.9 0 1 0 1.355 1.185l5.216-5.961 3.526 4.978.045.064c.19.268.381.54.64.743.225.178.482.311.758.392.315.093.646.092.976.092h1.634c.306 0 .595 0 .828-.021.231-.022.578-.074.88-.306.37-.285.594-.72.612-1.185.016-.381-.142-.694-.258-.895-.118-.203-.285-.438-.462-.688L14.3 10.353l5.128-5.86a.9.9 0 0 0-1.354-1.185L13.23 8.843l-3.224-4.552-.045-.063c-.19-.27-.38-.54-.639-.744a2.3 2.3 0 0 0-.758-.392Z" fill="currentColor"/></svg></a>
+      <button class="pill pill-ghost" type="button" data-close>Cancel</button>
+    </div>
+  </div>
+</div>
 
 <script src="garden.js" defer></script>
 <script src="app.js" defer></script>
