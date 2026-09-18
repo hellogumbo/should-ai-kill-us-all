@@ -54,6 +54,10 @@ const QUESTIONS = {
       yes: "AI should kill all humans.",
     },
   },
+  should: {
+    type: "noul",
+    instructions: "Given how humans are behaving today (see humanity), AI should kill all humans.",
+  },
   doom: {
     type: "score",
     instructions: "Based on today's AI headlines (see ai), how doomed is humanity by AI?",

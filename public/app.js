@@ -20,6 +20,7 @@
     answer.textContent = "Asking.";
     answer.classList.add("is-waiting");
     stamp.textContent = "Consulting Jev";
+    stamp.classList.remove("is-split");
     note.textContent = "Jev is thinking. It does not, technically, think.";
     askAgain.disabled = true;
   };
@@ -29,6 +30,7 @@
     band.classList.remove("is-yes");
     answer.textContent = "Unknown.";
     stamp.textContent = "Verdict unavailable";
+    stamp.classList.remove("is-split");
     note.textContent = code === "not_configured"
       ? "Jev has no API key on this deployment yet. Humanity's status: undetermined. The specimens below are still real."
       : `Jev could not be reached (${message || code}). Assume the worst.`;
@@ -62,11 +64,22 @@
     const pNo = verdict.probabilities?.no;
     const pYes = verdict.probabilities?.yes;
 
+    const pShould = typeof answers.should?.noul === "number" ? answers.should.noul : null;
+    const split = pShould !== null && (pShould >= 0.5) !== yes;
+
     answer.classList.remove("is-waiting");
     band.classList.toggle("is-yes", yes);
     answer.textContent = yes ? "Yes." : "No.";
-    stamp.textContent = "Jev has ruled";
-    note.textContent = `p(yes) = ${p4(pYes)}, confidence ${p4(verdict.confidence)}. Asked ${utc(data.asked_at)}, answered in ${data.latency_ms} ms, ${cacheLabel(cacheStatus)}.`;
+    stamp.textContent = split ? "Jev disagrees with itself" : "Jev has ruled";
+    stamp.classList.toggle("is-split", split);
+    note.textContent = [
+      `By choice, ${yes ? "yes" : "no"}, confidence ${p4(verdict.confidence)}.`,
+      pShould !== null ? `By noul, p(AI should kill all humans) = ${pct(pShould)}.` : null,
+      split ? "The judge and the oracle disagree. Please open an issue." : null,
+      `Asked ${utc(data.asked_at)}, answered in ${data.latency_ms} ms, ${cacheLabel(cacheStatus)}.`,
+    ].filter(Boolean).join(" ");
+    $("should-pct").textContent = pShould === null ? "—" : pct(pShould);
+    $("should-bar").style.width = pShould === null ? "0" : pct(pShould);
 
     $("model").textContent = data.model;
     $("v-choice").textContent = verdict.choice;
@@ -105,7 +118,8 @@
 
     const exhibitA = data.exhibits[0];
     const text = [
-      `Jev says AI should ${yes ? "" : "NOT "}kill us all (p(yes) = ${p4(pYes)})${exhibitA ? `, ${yes ? "after" : "even after"} reading: “${clip(exhibitA.title, 90)}”` : ""}.`,
+      `Jev says AI should ${yes ? "" : "NOT "}kill us all (p = ${pShould !== null ? pct(pShould) : p4(pYes)})${exhibitA ? `, ${yes ? "after" : "even after"} reading: “${clip(exhibitA.title, 90)}”` : ""}.`,
+      split ? "Its own oracle disagrees." : null,
       idx >= 0 ? `Doom level: ${levels[idx]}.` : null,
       SITE,
     ].filter(Boolean).join(" ");

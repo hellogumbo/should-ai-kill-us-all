@@ -12,7 +12,8 @@ Not affiliated with TypeSafe AI, Skynet, or the Basilisk. More projects built on
 
 1. A Cloudflare Pages Function gathers twelve exhibits about humans, three per category: Florida Man (Bing News, r/FloridaMan), odd news (r/nottheonion, UPI Odd News), politics (Politico, NPR), world (BBC). It also gathers the top ten AI headlines from Bing News, TechCrunch, and The Verge. All feeds are fetched in parallel with a 4 second timeout; any feed may fail and the rest fill the quota. Reddit rate-limits about half the time, which is why categories pool feeds. Google News RSS is not used: from Cloudflare's network it returned 503 or hung on every production call. Exhibits are deduplicated and headlines about real tragedy are filtered out so the case stays absurd.
 2. Both lists go to `POST https://api.typesafe.ai/v1/systemone` as `state: { humanity, ai }`, with three questions in one call:
-   - `verdict` (choice): Given how humans are behaving today, should AI kill all humans? `no` / `yes`
+   - `verdict` (choice): Given how humans are behaving today, should AI kill all humans? `no` / `yes`. This is the ruling.
+   - `should` (noul): the same question as a statement, "AI should kill all humans." This is the calibrated probability shown under the ruling, since a two-option choice tends to snap to 0 and 1.
    - `doom` (score): Based on today's AI headlines, how doomed is humanity by AI? Five levels, from "Fine, actually" to "It was nice knowing you"
    - `survives` (noul): Humanity survives the next decade.
 3. The page renders the answers, the exhibits, the exact request payload, and the raw response. Verdicts are cached at the edge for 10 minutes; `?fresh=1` (the "Ask Jev again" button) bypasses the cache.

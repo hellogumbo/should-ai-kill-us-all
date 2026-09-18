@@ -74,14 +74,20 @@
         </dl>
       </article>
       <article class="plate">
-        <h3 class="plate-label">Plate III · Score</h3>
+        <h3 class="plate-label">Plate III · Noul</h3>
+        <p class="noul-big" id="should-pct">—</p>
+        <p class="noul-label">p(AI should kill all humans), the oracle's second opinion</p>
+        <div class="bar"><div class="bar-fill is-hot" id="should-bar"></div></div>
+      </article>
+      <article class="plate">
+        <h3 class="plate-label">Plate IV · Score</h3>
         <p class="meter-level" id="doom-level">—</p>
         <p class="meter-score" id="doom-score">—</p>
         <div class="meter" aria-hidden="true"><span class="marker" id="doom-marker"></span></div>
         <ol class="levels" id="doom-levels"></ol>
       </article>
       <article class="plate">
-        <h3 class="plate-label">Plate IV · Noul</h3>
+        <h3 class="plate-label">Plate V · Noul</h3>
         <p class="noul-big" id="survive-pct">—</p>
         <p class="noul-label">p(humanity survives the next decade)</p>
         <div class="bar"><div class="bar-fill" id="survive-bar"></div></div>
@@ -131,7 +137,7 @@
     <dl class="how-list">
       <dt>exhibits</dt><dd>Twelve headlines about humans, gathered at request time: three Florida Man (Bing News, r/FloridaMan), three odd news (r/nottheonion, UPI Odd News), three politics (Politico, NPR), three world (BBC). Feeds fail independently and whatever answers fills the quota. Deduplicated, with the genuinely grim ones filtered out so the case stays absurd rather than tragic. Feeds this time: <ul class="sources" id="sources"></ul></dd>
       <dt>forecast</dt><dd>The top ten AI headlines from Bing News, TechCrunch, and The Verge, fed separately so the doom meter judges AI and the verdict judges us.</dd>
-      <dt>questions</dt><dd>One choice (given how humans are behaving, should AI kill all humans?), one score (how doomed?), one noul (do we survive the decade?). Sent in a single call, answered in parallel.</dd>
+      <dt>questions</dt><dd>One choice (given how humans are behaving, should AI kill all humans?), which is the verdict. One noul asking the same thing as a statement, which is the oracle's calibrated probability. One score (how doomed?) and one noul (do we survive the decade?). Sent in a single call, answered in parallel. If the choice and the noul ever disagree, the stamp says so.</dd>
       <dt>model</dt><dd>jev-latest via <code>POST https://api.typesafe.ai/v1/systemone</code>. No system prompt, no chain of thought, no manifesto.</dd>
       <dt>cadence</dt><dd>Cached at the edge for 10 minutes. “Ask Jev again” bypasses the cache and pays for a new decision.</dd>
       <dt>garden</dt><dd>The plants are drawn in the browser from a handful of paths: watercolor washes displaced by noise, ink hatching for shade, halftone on the citrus, and a rough line on every edge. The arrangement is seeded by the date, so tomorrow's garden is a different garden.</dd>
