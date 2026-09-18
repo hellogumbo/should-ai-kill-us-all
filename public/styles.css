@@ -225,6 +225,18 @@ code { font-family: var(--mono); font-size: 0.88em; background: rgba(23, 41, 31,
 .specimen .src { margin-top: auto; font-size: 13px; color: var(--ink-soft); }
 .specimen.empty { justify-content: center; font-family: var(--serif); font-style: italic; color: var(--ink-soft); }
 
+/* Ledger */
+.ledger { padding-bottom: 88px; }
+.ledger::before { content: ""; position: absolute; left: var(--gutter); right: var(--gutter); top: 0; border-top: 1px solid var(--line); }
+.ledger-scroll { overflow-x: auto; }
+.ledger-table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 720px; }
+.ledger-table th { text-align: left; font-family: var(--serif); font-style: italic; font-weight: 400; font-size: 17px; color: var(--ink-soft); padding: 0 14px 10px 0; border-bottom: 1px solid var(--ink); }
+.ledger-table td { padding: 10px 14px 10px 0; border-bottom: 1px solid var(--line); vertical-align: top; font-variant-numeric: tabular-nums; }
+.ledger-table td.ruling { font-family: var(--display); font-weight: 700; letter-spacing: -0.02em; }
+.ledger-table tr.is-yes td.ruling { color: var(--hibiscus); }
+.ledger-table td.exhibit { max-width: 420px; }
+.ledger-table td.exhibit a:hover { text-decoration: underline; text-underline-offset: 3px; }
+
 /* Notes */
 .notes { position: relative; max-width: var(--max); margin: 0 auto; padding: 72px var(--gutter) 96px; }
 .notes::before { content: ""; position: absolute; left: var(--gutter); right: var(--gutter); top: 0; border-top: 1px solid var(--line); }

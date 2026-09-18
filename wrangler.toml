@@ -1,3 +1,7 @@
 name = "should-ai-kill-us-all"
 compatibility_date = "2025-12-01"
 pages_build_output_dir = "public"
+
+[[kv_namespaces]]
+binding = "VERDICTS"
+id = "697228cfef8f4c5eb5c9de653eeaabcc"

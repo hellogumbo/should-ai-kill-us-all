@@ -1,4 +1,8 @@
 const TTL_SECONDS = 600;
+const MIN_FRESH_INTERVAL_MS = 60_000;
+const STORE_KEY = "latest";
+const HISTORY_KEY = "history";
+const HISTORY_MAX = 500;
 const EXHIBIT_COUNT = 12;
 const AI_COUNT = 10;
 const FEED_TIMEOUT_MS = 4000;
@@ -84,7 +88,17 @@ export async function onRequestGet({ request, env, waitUntil }) {
     if (hit) return withHeader(hit, "x-verdict-cache", "hit");
   }
 
+  const stored = env.VERDICTS ? await env.VERDICTS.get(STORE_KEY, { type: "json" }) : null;
+  const ageMs = stored ? Date.now() - Date.parse(stored.asked_at) : Infinity;
+  if (stored && ageMs < (fresh ? MIN_FRESH_INTERVAL_MS : TTL_SECONDS * 1000)) {
+    const remaining = Math.max(30, Math.round(TTL_SECONDS - ageMs / 1000));
+    const response = json(stored, 200, { "cache-control": `public, max-age=${remaining}`, "x-verdict-cache": fresh ? "throttled" : "shared" });
+    waitUntil(cache.put(cacheKey, response.clone()));
+    return response;
+  }
+
   const fallback = async (err) => {
+    if (stored) return json(stored, 200, { "x-verdict-cache": "stale" });
     const stale = await cache.match(cacheKey);
     if (stale) return withHeader(stale, "x-verdict-cache", "stale");
     return json({ error: "upstream_failed", message: err.message || String(err) }, 502);
@@ -103,7 +117,9 @@ export async function onRequestGet({ request, env, waitUntil }) {
 
   try {
     const result = await askJev(env, news);
+    result.history = await appendHistory(env, result);
     const response = json(result, 200, { "cache-control": `public, max-age=${TTL_SECONDS}`, "x-verdict-cache": "miss" });
+    if (env.VERDICTS) waitUntil(env.VERDICTS.put(STORE_KEY, JSON.stringify(result), { expirationTtl: 86400 }));
     waitUntil(cache.put(cacheKey, response.clone()));
     return response;
   } catch (err) {
@@ -234,6 +250,29 @@ async function askJev(env, news) {
   };
 }
 
+async function appendHistory(env, result) {
+  if (!env.VERDICTS) return [];
+  const prior = (await env.VERDICTS.get(HISTORY_KEY, { type: "json" })) || [];
+  const a = result.answers;
+  const score = typeof a.doom?.score === "number" ? a.doom.score : null;
+  const levels = QUESTIONS.doom.criteria;
+  const idx = score === null ? -1 : Math.min(levels.length - 1, Math.max(0, Math.round(score)));
+  const first = result.exhibits[0];
+  const entry = {
+    asked_at: result.asked_at,
+    model: result.model,
+    choice: a.verdict.choice,
+    p_should: typeof a.should?.noul === "number" ? a.should.noul : null,
+    doom: score,
+    doom_level: idx < 0 ? null : (a.doom.legend?.[idx] ?? levels[idx]),
+    survives: typeof a.survives?.noul === "number" ? a.survives.noul : null,
+    exhibit: first ? { title: first.title, source: first.source, url: first.url } : null,
+  };
+  const history = [entry, ...prior].slice(0, HISTORY_MAX);
+  await env.VERDICTS.put(HISTORY_KEY, JSON.stringify(history), { expirationTtl: 60 * 60 * 24 * 365 });
+  return history;
+}
+
 function interleave(lists) {
   const out = [];
   const longest = Math.max(0, ...lists.map((l) => l.length));
@@ -280,7 +319,7 @@ function decode(s) {
 function json(data, status = 200, headers = {}) {
   return new Response(JSON.stringify(data), {
     status,
-    headers: { "content-type": "application/json; charset=utf-8", "access-control-allow-origin": "*", ...headers },
+    headers: { "content-type": "application/json; charset=utf-8", ...headers },
   });
 }
 

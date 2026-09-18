@@ -13,7 +13,13 @@
   const utc = (iso) => new Date(iso).toISOString().replace("T", " ").slice(0, 16) + " UTC";
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const clip = (s, n) => (s.length > n ? s.slice(0, n - 1).trimEnd() + "…" : s);
-  const cacheLabel = (status) => (status === "hit" ? "cached within the last ten minutes" : status === "stale" ? "a stale copy, Jev was unreachable" : "a fresh decision");
+  const cacheLabel = (status, askedAt) => {
+    const age = Math.max(0, Math.round((Date.now() - Date.parse(askedAt)) / 1000));
+    if (status === "throttled") return `the standing ruling from ${age} s ago, Jev takes a minute between rulings`;
+    if (status === "hit" || status === "shared") return "the standing ruling, good for ten minutes";
+    if (status === "stale") return "a stale copy, Jev was unreachable";
+    return "a fresh decision";
+  };
   const intent = (text) => `https://x.com/intent/post?text=${encodeURIComponent(text)}`;
 
   let ruling = null;
@@ -73,6 +79,18 @@
     ]);
   };
 
+  const renderLedger = (history) => {
+    const rows = history.slice(0, 60);
+    const yesCount = history.filter((h) => h.choice === "yes").length;
+    const oldest = history[history.length - 1];
+    $("ledger-lede").textContent = history.length
+      ? `${history.length} ruling${history.length === 1 ? "" : "s"} since ${utc(oldest.asked_at)}. ${yesCount === 0 ? "None of them yes." : `${yesCount} of them yes.`}${history.length > rows.length ? ` Showing the latest ${rows.length}.` : ""}`
+      : "The ledger opens with the first ruling.";
+    $("ledger-rows").innerHTML = rows
+      .map((h) => `<tr class="${h.choice === "yes" ? "is-yes" : ""}"><td>${utc(h.asked_at)}</td><td class="ruling">${h.choice === "yes" ? "Yes" : "No"}</td><td>${h.p_should === null ? "—" : pct(h.p_should)}</td><td>${h.doom === null ? "—" : `${h.doom.toFixed(2)} · ${esc(h.doom_level || "")}`}</td><td>${h.survives === null ? "—" : pct(h.survives)}</td><td class="exhibit">${h.exhibit ? `<a href="${esc(h.exhibit.url)}" target="_blank" rel="noopener">${esc(h.exhibit.title)}</a>` : "—"}</td></tr>`)
+      .join("");
+  };
+
   const render = (data, cacheStatus) => {
     const { answers, request } = data;
     const verdict = answers.verdict;
@@ -93,7 +111,7 @@
       `By choice, ${yes ? "yes" : "no"}, confidence ${p4(verdict.confidence)}.`,
       pShould !== null ? `By noul, p(AI should kill all humans) = ${pct(pShould)}.` : null,
       split ? "The judge and the oracle disagree. Please open an issue." : null,
-      `Asked ${utc(data.asked_at)}, answered in ${data.latency_ms} ms, ${cacheLabel(cacheStatus)}.`,
+      `Asked ${utc(data.asked_at)}, answered in ${data.latency_ms} ms, ${cacheLabel(cacheStatus, data.asked_at)}.`,
     ].filter(Boolean).join(" ");
     $("should-pct").textContent = pShould === null ? "—" : pct(pShould);
     $("should-bar").style.width = pShould === null ? "0" : pct(pShould);
@@ -130,6 +148,7 @@
 
     ruling = { yes, pYes, pShould, split, level: idx >= 0 ? levels[idx] : null };
     renderNews(data);
+    renderLedger(data.history || []);
     $("request-json").textContent = JSON.stringify(request, null, 2);
     $("usage").textContent = data.usage ? `${data.usage.input_tokens} tokens in, ${data.usage.output_tokens} out` : "raw answers";
     $("response-json").textContent = JSON.stringify({ model: data.model, answers }, null, 2);

@@ -119,6 +119,20 @@
   <ol class="specimens" id="ai-headlines"></ol>
 </section>
 
+<section class="case ledger" id="ledger">
+  <header class="case-head">
+    <p class="eyebrow">Ledger</p>
+    <h2>Rulings to date</h2>
+    <p class="lede" id="ledger-lede">The ledger opens with the first ruling.</p>
+  </header>
+  <div class="ledger-scroll">
+    <table class="ledger-table">
+      <thead><tr><th>Asked (UTC)</th><th>Ruling</th><th>p(should)</th><th>Doom</th><th>Survives</th><th>Exhibit A</th></tr></thead>
+      <tbody id="ledger-rows"></tbody>
+    </table>
+  </div>
+</section>
+
 <section class="notes" id="how">
   <div class="notes-grid">
     <div class="note-block">
@@ -139,7 +153,7 @@
       <dt>forecast</dt><dd>The top ten AI headlines from Bing News, TechCrunch, and The Verge, fed separately so the doom meter judges AI and the verdict judges us.</dd>
       <dt>questions</dt><dd>One choice (given how humans are behaving, should AI kill all humans?), which is the verdict. One noul asking the same thing as a statement, which is the oracle's calibrated probability. One score (how doomed?) and one noul (do we survive the decade?). Sent in a single call, answered in parallel. If the choice and the noul ever disagree, the stamp says so.</dd>
       <dt>model</dt><dd>jev-latest via <code>POST https://api.typesafe.ai/v1/systemone</code>. No system prompt, no chain of thought, no manifesto.</dd>
-      <dt>cadence</dt><dd>Cached at the edge for 10 minutes. “Ask Jev again” bypasses the cache and pays for a new decision.</dd>
+      <dt>cadence</dt><dd>One ruling is shared by everyone and stands for 10 minutes. “Ask Jev again” asks for a new one, but Jev takes at least a minute between rulings no matter how many people ask, and each address is rate-limited at the edge. Spamming the button costs nothing and changes nothing.</dd>
       <dt>garden</dt><dd>The plants are drawn in the browser from a handful of paths: watercolor washes displaced by noise, ink hatching for shade, halftone on the citrus, and a rough line on every edge. The arrangement is seeded by the date, so tomorrow's garden is a different garden.</dd>
       <dt>api</dt><dd><code>curl https://shouldaikillusall.com/api/verdict</code></dd>
     </dl>
